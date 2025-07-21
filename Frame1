@@ -1,0 +1,176 @@
+{
+  "scenes": [
+    {
+      "name": "TitleScreen",
+      "objects": [
+        {
+          "type": "Text",
+          "name": "GameTitle",
+          "text": "Circuit Sprint: Pixel's Escape",
+          "x": 300,
+          "y": 150,
+          "fontSize": 48,
+          "color": "#00FFFF"
+        },
+        {
+          "type": "Text",
+          "name": "StartPrompt",
+          "text": "Press Enter to Start",
+          "x": 340,
+          "y": 250,
+          "fontSize": 24,
+          "color": "#FFFFFF"
+        }
+      ],
+      "events": [
+        {
+          "condition": "KeyPressed",
+          "key": "Return",
+          "action": "ChangeScene",
+          "target": "GameScene"
+        }
+      ]
+    },
+    {
+      "name": "GameScene",
+      "objects": [
+        {
+          "type": "Sprite",
+          "name": "Pixel",
+          "animations": [
+            "idle_frame.png",
+            "walk_frame.png"
+          ],
+          "behavior": "PlatformerObject",
+          "x": 100,
+          "y": 500
+        },
+        {
+          "type": "Sprite",
+          "name": "Chip",
+          "image": "chip.png",
+          "quantity": 5
+        },
+        {
+          "type": "Sprite",
+          "name": "EnemyBot",
+          "image": "glitch_bot.png",
+          "behavior": "PathFollower"
+        },
+        {
+          "type": "Sprite",
+          "name": "Portal",
+          "animations": ["locked.png", "open.png"],
+          "x": 1200,
+          "y": 100
+        },
+        {
+          "type": "Sprite",
+          "name": "GlitchZone",
+          "image": "transparent_glitch_zone.png"
+        },
+        {
+          "type": "Text",
+          "name": "ScoreText",
+          "text": "Chips: 0 / 5",
+          "x": 20,
+          "y": 20
+        },
+        {
+          "type": "Text",
+          "name": "LivesText",
+          "text": "Lives: 3",
+          "x": 20,
+          "y": 50
+        }
+      ],
+      "variables": [
+        {
+          "name": "ChipsCollected",
+          "value": 0
+        },
+        {
+          "name": "PlayerLives",
+          "value": 3
+        }
+      ],
+      "events": [
+        {
+          "condition": "Collision",
+          "objectA": "Pixel",
+          "objectB": "Chip",
+          "action": [
+            "DeleteObject(Chip)",
+            "AddVariable(ChipsCollected, 1)",
+            "PlaySound(collect_chip.wav)",
+            "UpdateText(ScoreText, \"Chips: \" + ChipsCollected + \" / 5\")"
+          ]
+        },
+        {
+          "condition": "Collision",
+          "objectA": "Pixel",
+          "objectB": "EnemyBot",
+          "action": [
+            "SubtractVariable(PlayerLives, 1)",
+            "PlaySound(hit.wav)",
+            "UpdateText(LivesText, \"Lives: \" + PlayerLives)"
+          ]
+        },
+        {
+          "condition": "VariableEquals",
+          "variable": "ChipsCollected",
+          "value": 5,
+          "action": [
+            "ChangeAnimation(Portal, 1)",
+            "PlaySound(portal_open.wav)"
+          ]
+        },
+        {
+          "condition": ["Collision", "Pixel", "Portal"],
+          "subcondition": "VariableEquals(ChipsCollected, 5)",
+          "action": "ChangeScene",
+          "target": "ScoreScreen"
+        },
+        {
+          "condition": "VariableLessOrEqual(PlayerLives, 0)",
+          "action": "ChangeScene",
+          "target": "GameOverScene"
+        },
+        {
+          "condition": "Collision",
+          "objectA": "Pixel",
+          "objectB": "GlitchZone",
+          "action": [
+            "SimulateKey(Left if Right is pressed, and vice versa)",
+            "StartTimer(glitchTimer)",
+            "ResetControlsAfter(3 seconds)"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ScoreScreen",
+      "objects": [
+        {
+          "type": "Text",
+          "name": "VictoryText",
+          "text": "You Win, Pixel!",
+          "x": 300,
+          "y": 200,
+          "fontSize": 36,
+          "color": "#00FF66"
+        },
+        {
+          "type": "Text",
+          "name": "HighScoreText",
+          "text": "High Scores:",
+          "x": 300,
+          "y": 250,
+          "fontSize": 24,
+          "color": "#FFFFFF"
+        }
+      ],
+      "events": []
+    }
+  ]
+}
